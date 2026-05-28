@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.streamlit/secrets.toml
+data/raw/*.csv
+data/processed/*.csv
+data/processed/*.json
+models/*.joblib
+reports/*.html
+analytics/*.duckdb
+data/processed/sql_*.csv
