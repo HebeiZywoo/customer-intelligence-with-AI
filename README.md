@@ -166,9 +166,6 @@ The deployed app generates the simulated data and model outputs automatically on
 - `models/repeat_purchase_model.joblib`
 - `models/segmentation_model.joblib`
 
-## Resume Bullet
-
-Built an AI-powered customer intelligence platform using Python, DuckDB SQL, scikit-learn, and Streamlit to segment ecommerce customers, compare repeat-purchase models, explain model drivers, estimate campaign lift/ROI with confidence intervals, and generate executive-ready retention recommendations.
 
 ## What I Would Build Next
 
