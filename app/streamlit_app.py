@@ -161,23 +161,27 @@ if customers.empty:
     st.info("Run `python scripts/generate_data.py` and `python scripts/train_models.py` first.")
     st.stop()
 
-st.sidebar.header("Data")
-uploaded_file = st.sidebar.file_uploader("Import customer CSV", type=["csv"])
-if uploaded_file is not None:
-    try:
-        uploaded_customers = pd.read_csv(uploaded_file)
-        uploaded_customers, missing_columns = prepare_uploaded_customers(uploaded_customers)
-        if missing_columns:
-            st.sidebar.error("Missing columns: " + ", ".join(missing_columns))
-            st.sidebar.caption("Using the default dataset until the uploaded CSV matches the required schema.")
-        else:
-            customers = uploaded_customers
-            segment_summary = summarize_dashboard_segments(customers)
-            st.sidebar.success(f"Using uploaded dataset: {len(customers):,} customers")
-    except Exception as exc:
-        st.sidebar.error(f"Could not read CSV: {exc}")
-else:
-    st.sidebar.caption("Using generated demo dataset")
+with st.expander("Import customer CSV"):
+    st.caption(
+        "Upload a customer-level CSV with columns such as customer_id, segment, monetary, "
+        "frequency, recency_days, repeat_purchase_probability, and recommended_action."
+    )
+    uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
+    if uploaded_file is not None:
+        try:
+            uploaded_customers = pd.read_csv(uploaded_file)
+            uploaded_customers, missing_columns = prepare_uploaded_customers(uploaded_customers)
+            if missing_columns:
+                st.error("Missing columns: " + ", ".join(missing_columns))
+                st.caption("Using the generated demo dataset until the uploaded CSV matches the required schema.")
+            else:
+                customers = uploaded_customers
+                segment_summary = summarize_dashboard_segments(customers)
+                st.success(f"Using uploaded dataset: {len(customers):,} customers")
+        except Exception as exc:
+            st.error(f"Could not read CSV: {exc}")
+    else:
+        st.caption("Currently using the generated demo dataset.")
 
 top_segment = segment_summary.sort_values("avg_monetary", ascending=False).iloc[0]
 top_segment_display = str(top_segment["segment"]).replace("High-value loyalists", "High-value")
