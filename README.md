@@ -52,6 +52,7 @@ If you want the story behind the project, start here:
 The dashboard is designed around the way a stakeholder would consume the work:
 
 - Executive Brief: recommendation, impact, ROI, and guardrails.
+- Data Import: optional customer-level CSV upload for custom dashboard exploration.
 - Overview: customer base, revenue, repeat rate, and marketing actions.
 - Segments: RFM customer groups and segment-level performance.
 - Prediction: model comparison, selected model metrics, and feature importance.

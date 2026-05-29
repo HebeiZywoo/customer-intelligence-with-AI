@@ -23,6 +23,15 @@ REQUIRED_OUTPUTS = [
     PROCESSED_DIR / "campaign_experiment_summary.csv",
     PROCESSED_DIR / "campaign_segment_lift.csv",
 ]
+UPLOAD_REQUIRED_COLUMNS = {
+    "customer_id",
+    "segment",
+    "monetary",
+    "frequency",
+    "recency_days",
+    "repeat_purchase_probability",
+    "recommended_action",
+}
 
 
 st.set_page_config(
@@ -89,6 +98,58 @@ def _read_optional_csv(filename: str) -> pd.DataFrame:
     return pd.DataFrame()
 
 
+def prepare_uploaded_customers(uploaded: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
+    uploaded = uploaded.copy()
+    missing = sorted(UPLOAD_REQUIRED_COLUMNS - set(uploaded.columns))
+    if missing:
+        return uploaded, missing
+
+    numeric_defaults = {
+        "monetary": 0,
+        "frequency": 0,
+        "recency_days": 999,
+        "repeat_purchase_probability": 0,
+        "repeat_purchase_60d": 0,
+        "campaign_converted_30d": 0,
+        "avg_order_value": 0,
+    }
+    text_defaults = {
+        "region": "Unknown",
+        "acquisition_channel": "Unknown",
+    }
+    for column, default in numeric_defaults.items():
+        if column not in uploaded.columns:
+            uploaded[column] = default
+        uploaded[column] = pd.to_numeric(uploaded[column], errors="coerce").fillna(default)
+    for column, default in text_defaults.items():
+        if column not in uploaded.columns:
+            uploaded[column] = default
+        uploaded[column] = uploaded[column].fillna(default)
+
+    needs_aov = uploaded["avg_order_value"].eq(0) & uploaded["frequency"].gt(0)
+    uploaded.loc[needs_aov, "avg_order_value"] = (
+        uploaded.loc[needs_aov, "monetary"] / uploaded.loc[needs_aov, "frequency"]
+    )
+    return uploaded, []
+
+
+def summarize_dashboard_segments(customers: pd.DataFrame) -> pd.DataFrame:
+    summary = (
+        customers.groupby("segment")
+        .agg(
+            customers=("customer_id", "count"),
+            avg_recency_days=("recency_days", "mean"),
+            avg_frequency=("frequency", "mean"),
+            avg_monetary=("monetary", "mean"),
+            repeat_purchase_rate=("repeat_purchase_60d", "mean"),
+            campaign_conversion_rate=("campaign_converted_30d", "mean"),
+        )
+        .reset_index()
+    )
+    summary["share_of_customers"] = summary["customers"] / summary["customers"].sum()
+    return summary.sort_values("avg_monetary", ascending=False)
+
+
 with st.spinner("Preparing customer intelligence outputs..."):
     ensure_pipeline_outputs()
 
@@ -99,6 +160,24 @@ st.title("AI-Powered Customer Intelligence Platform")
 if customers.empty:
     st.info("Run `python scripts/generate_data.py` and `python scripts/train_models.py` first.")
     st.stop()
+
+st.sidebar.header("Data")
+uploaded_file = st.sidebar.file_uploader("Import customer CSV", type=["csv"])
+if uploaded_file is not None:
+    try:
+        uploaded_customers = pd.read_csv(uploaded_file)
+        uploaded_customers, missing_columns = prepare_uploaded_customers(uploaded_customers)
+        if missing_columns:
+            st.sidebar.error("Missing columns: " + ", ".join(missing_columns))
+            st.sidebar.caption("Using the default dataset until the uploaded CSV matches the required schema.")
+        else:
+            customers = uploaded_customers
+            segment_summary = summarize_dashboard_segments(customers)
+            st.sidebar.success(f"Using uploaded dataset: {len(customers):,} customers")
+    except Exception as exc:
+        st.sidebar.error(f"Could not read CSV: {exc}")
+else:
+    st.sidebar.caption("Using generated demo dataset")
 
 top_segment = segment_summary.sort_values("avg_monetary", ascending=False).iloc[0]
 top_segment_display = str(top_segment["segment"]).replace("High-value loyalists", "High-value")
