@@ -111,7 +111,7 @@ flowchart LR
 ### Option A: Anaconda
 
 ```bash
-conda env create -f environment.yml
+conda env create -f conda_environment.yml
 conda activate customer-ai-ds
 python scripts/generate_data.py
 python scripts/train_models.py
