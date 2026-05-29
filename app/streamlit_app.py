@@ -6,7 +6,6 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-import plotly.express as px
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -165,30 +164,13 @@ with tabs[0]:
 
     left, right = st.columns([1.1, 1])
     with left:
-        revenue_by_segment = customers.groupby("segment", as_index=False)["monetary"].sum()
-        st.plotly_chart(
-            px.bar(
-                revenue_by_segment,
-                x="segment",
-                y="monetary",
-                title="Revenue by Segment",
-                labels={"segment": "", "monetary": "Revenue"},
-            ),
-            use_container_width=True,
-        )
+        revenue_by_segment = customers.groupby("segment")["monetary"].sum().sort_values(ascending=False)
+        st.write("Revenue by Segment")
+        st.bar_chart(revenue_by_segment)
     with right:
-        action_counts = customers["recommended_action"].value_counts().reset_index()
-        action_counts.columns = ["recommended_action", "customers"]
-        st.plotly_chart(
-            px.pie(
-                action_counts,
-                names="recommended_action",
-                values="customers",
-                title="Recommended Marketing Actions",
-                hole=0.45,
-            ),
-            use_container_width=True,
-        )
+        action_counts = customers["recommended_action"].value_counts()
+        st.write("Recommended Marketing Actions")
+        st.bar_chart(action_counts)
 
 with tabs[1]:
     st.dataframe(
@@ -203,17 +185,13 @@ with tabs[1]:
     )
 
     scatter = customers.sample(min(900, len(customers)), random_state=42)
-    st.plotly_chart(
-        px.scatter(
-            scatter,
-            x="recency_days",
-            y="monetary",
-            color="segment",
-            size="frequency",
-            hover_data=["customer_id", "recommended_action"],
-            title="RFM Segment Map",
-        ),
-        use_container_width=True,
+    st.write("RFM Segment Map")
+    st.scatter_chart(
+        scatter,
+        x="recency_days",
+        y="monetary",
+        color="segment",
+        size="frequency",
     )
 
 with tabs[2]:
@@ -234,18 +212,8 @@ with tabs[2]:
 
     if not feature_importance.empty:
         st.write("Top Model Drivers")
-        top_features = feature_importance.head(15).sort_values("importance")
-        st.plotly_chart(
-            px.bar(
-                top_features,
-                x="importance",
-                y="feature",
-                orientation="h",
-                title="Feature Importance",
-                labels={"importance": "Importance", "feature": ""},
-            ),
-            use_container_width=True,
-        )
+        top_features = feature_importance.head(15).set_index("feature")["importance"].sort_values(ascending=True)
+        st.bar_chart(top_features)
         st.dataframe(
             feature_importance[
                 ["feature", "importance", "normalized_importance", "importance_type"]
