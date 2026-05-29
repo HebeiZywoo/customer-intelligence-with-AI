@@ -166,7 +166,7 @@ The deployed app generates the simulated data and model outputs automatically on
 - `analytics/customer_intelligence.duckdb`
 - `models/repeat_purchase_model.joblib`
 - `models/segmentation_model.joblib`
-
+Thw website URL: https://customer-intelligence-ai-u99wnnx9ucp9thfydqgpba.streamlit.app/
 
 ## What I Would Build Next
 
