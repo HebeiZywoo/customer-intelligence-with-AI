@@ -1,10 +1,16 @@
+import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from src.customer_ai.logging_utils import configure_logging
+
+logger = configure_logging()
+
 RAW_DIR = ROOT / "data" / "raw"
 RANDOM_SEED = 42
 
@@ -68,9 +74,7 @@ def make_products(rng: np.random.Generator, n_products: int = 80) -> pd.DataFram
     return pd.DataFrame(rows)
 
 
-def make_transactions(
-    rng: np.random.Generator, customers: pd.DataFrame, products: pd.DataFrame
-) -> pd.DataFrame:
+def make_transactions(rng: np.random.Generator, customers: pd.DataFrame, products: pd.DataFrame) -> pd.DataFrame:
     rows = []
     product_lookup = products.set_index("product_id")
     end_date = pd.Timestamp("2025-12-31")
@@ -168,10 +172,10 @@ def main() -> None:
     transactions.to_csv(RAW_DIR / "transactions.csv", index=False)
     campaign_events.to_csv(RAW_DIR / "campaign_events.csv", index=False)
 
-    print(f"Generated {len(customers):,} customers")
-    print(f"Generated {len(products):,} products")
-    print(f"Generated {len(transactions):,} transactions")
-    print(f"Generated {len(campaign_events):,} campaign events")
+    logger.info("Generated %s customers", f"{len(customers):,}")
+    logger.info("Generated %s products", f"{len(products):,}")
+    logger.info("Generated %s transactions", f"{len(transactions):,}")
+    logger.info("Generated %s campaign events", f"{len(campaign_events):,}")
 
 
 if __name__ == "__main__":

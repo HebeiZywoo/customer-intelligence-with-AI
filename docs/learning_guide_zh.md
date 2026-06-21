@@ -111,7 +111,7 @@ DuckDB 层模拟真实公司的 analytics warehouse。脚本 `scripts/run_sql_an
 
 英文 bullet：
 
-> Built an AI-powered customer intelligence platform using Python, DuckDB SQL, scikit-learn, and Streamlit to segment customers, compare repeat-purchase models, explain model drivers, estimate campaign lift/ROI with confidence intervals, and generate executive-ready business recommendations through an interactive dashboard.
+> Built a customer intelligence and campaign ROI platform using Python, DuckDB SQL, scikit-learn, and Streamlit to segment customers, compare repeat-purchase models, explain model drivers, estimate campaign lift/ROI with confidence intervals, and generate executive-ready business recommendations through an interactive dashboard.
 
 中文讲法：
 

@@ -10,8 +10,7 @@ def build_insight_context(customers: pd.DataFrame, segment_summary: pd.DataFrame
 
     high_intent = customers[customers["repeat_purchase_probability"] >= 0.55]
     offer_candidates = customers[
-        (customers["repeat_purchase_probability"] >= 0.30)
-        & (customers["repeat_purchase_probability"] < 0.55)
+        (customers["repeat_purchase_probability"] >= 0.30) & (customers["repeat_purchase_probability"] < 0.55)
     ]
 
     return {

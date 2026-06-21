@@ -4,7 +4,6 @@ from math import erfc, sqrt
 
 import pandas as pd
 
-
 Z_95 = 1.96
 
 
@@ -18,17 +17,11 @@ def build_campaign_experiment_outputs(
     campaign["is_treated"] = (campaign["treatment_group"] == "Targeted").astype(int)
 
     summary = _two_group_lift(campaign)
-    target_candidates = customer_features[
-        customer_features["recommended_action"] == "Send targeted offer"
-    ].copy()
+    target_candidates = customer_features[customer_features["recommended_action"] == "Send targeted offer"].copy()
     candidate_count = len(target_candidates)
-    avg_order_value = target_candidates.loc[
-        target_candidates["avg_order_value"] > 0, "avg_order_value"
-    ].mean()
+    avg_order_value = target_candidates.loc[target_candidates["avg_order_value"] > 0, "avg_order_value"].mean()
     if pd.isna(avg_order_value):
-        avg_order_value = customer_features.loc[
-            customer_features["avg_order_value"] > 0, "avg_order_value"
-        ].mean()
+        avg_order_value = customer_features.loc[customer_features["avg_order_value"] > 0, "avg_order_value"].mean()
 
     absolute_lift = max(float(summary["absolute_lift"].iloc[0]), 0)
     incremental_conversions = candidate_count * absolute_lift
@@ -80,10 +73,7 @@ def _two_group_lift(events: pd.DataFrame) -> pd.DataFrame:
     treated_rate = treated_conversions / treated_n if treated_n else 0
     holdout_rate = holdout_conversions / holdout_n if holdout_n else 0
     lift = treated_rate - holdout_rate
-    se = sqrt(
-        treated_rate * (1 - treated_rate) / treated_n
-        + holdout_rate * (1 - holdout_rate) / holdout_n
-    )
+    se = sqrt(treated_rate * (1 - treated_rate) / treated_n + holdout_rate * (1 - holdout_rate) / holdout_n)
     ci_low = lift - Z_95 * se
     ci_high = lift + Z_95 * se
     z_score = lift / se if se else 0

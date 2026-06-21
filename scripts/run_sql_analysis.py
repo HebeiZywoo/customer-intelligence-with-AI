@@ -4,11 +4,13 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from src.customer_ai.experiments import build_campaign_experiment_outputs
+from src.customer_ai.logging_utils import configure_logging
+
+logger = configure_logging()
 
 RAW_DIR = ROOT / "data" / "raw"
 PROCESSED_DIR = ROOT / "data" / "processed"
@@ -111,17 +113,15 @@ def main() -> None:
 
     campaign_events = pd.read_csv(RAW_DIR / "campaign_events.csv")
     customer_features = pd.read_csv(PROCESSED_DIR / "customer_features.csv")
-    experiment_summary, segment_lift = build_campaign_experiment_outputs(
-        campaign_events, customer_features
-    )
+    experiment_summary, segment_lift = build_campaign_experiment_outputs(campaign_events, customer_features)
     experiment_summary.to_csv(PROCESSED_DIR / "campaign_experiment_summary.csv", index=False)
     segment_lift.to_csv(PROCESSED_DIR / "campaign_segment_lift.csv", index=False)
 
-    print(f"Built DuckDB database: {DB_PATH}")
+    logger.info("Built DuckDB database: %s", DB_PATH)
     for filename in QUERIES:
-        print(f"Wrote {PROCESSED_DIR / filename}")
-    print(f"Wrote {PROCESSED_DIR / 'campaign_experiment_summary.csv'}")
-    print(f"Wrote {PROCESSED_DIR / 'campaign_segment_lift.csv'}")
+        logger.info("Wrote %s", PROCESSED_DIR / filename)
+    logger.info("Wrote %s", PROCESSED_DIR / "campaign_experiment_summary.csv")
+    logger.info("Wrote %s", PROCESSED_DIR / "campaign_segment_lift.csv")
 
 
 if __name__ == "__main__":

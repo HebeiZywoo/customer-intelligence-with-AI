@@ -5,6 +5,23 @@ __pycache__/
 venv/
 .env
 .streamlit/secrets.toml
+
+# Tooling caches and build artifacts
+.coverage
+coverage.xml
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Untracked résumé / document-generation scripts that live in this folder
+create_sofia_coffee_chat_doc.py
+optimize_da_ds_resumes.py
+strengthen_da_internship_resume.py
+update_gala_product_resume.py
+sofia_doc_render/
+tracker_build/
 data/raw/*.csv
 data/processed/*.csv
 data/processed/*.json

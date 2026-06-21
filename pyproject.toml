@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "customer-ai"
+version = "0.1.0"
+description = "Customer segmentation, repeat-purchase modeling, and campaign ROI workspace"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Changxin Shi" }]
+dependencies = [
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "scikit-learn>=1.4",
+    "duckdb>=1.0",
+    "streamlit>=1.36",
+    "joblib>=1.4",
+    "anthropic>=0.40",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.6",
+    "pre-commit>=3.7",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+extend-exclude = [".venv", "data", "analytics", "models", "reports"]
+# Project code lives under these directories. Root-level .py files in this
+# folder are unrelated résumé/document scripts and are intentionally ignored.
+include = ["app/**/*.py", "src/**/*.py", "scripts/**/*.py", "tests/**/*.py", "pyproject.toml"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B", "C4", "SIM"]
+ignore = [
+    "E501",   # line length is handled by the formatter
+    "B905",   # zip(strict=) is Python 3.10+; the library still supports 3.9
+    "SIM108", # ternaries do not always read better here
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Entrypoints add the repo root to sys.path before importing the package.
+"scripts/*" = ["E402"]
+"app/*" = ["E402"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "customer_ai"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q --strict-markers"
+markers = [
+    "slow: end-to-end checks that regenerate data and run the full pipeline",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning",
+]

@@ -1,4 +1,4 @@
-# Case Study: AI-Powered Customer Intelligence Platform
+# Case Study: Customer Intelligence & Campaign ROI Platform
 
 ## Executive Summary
 

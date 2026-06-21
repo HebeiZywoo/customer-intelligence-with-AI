@@ -13,7 +13,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-
 SEGMENT_FEATURES = ["recency_days", "frequency", "monetary", "avg_order_value"]
 PREDICTION_NUMERIC_FEATURES = [
     "age",
@@ -72,9 +71,7 @@ def train_repeat_purchase_model(features: pd.DataFrame) -> tuple[Pipeline, dict]
     x = features[PREDICTION_NUMERIC_FEATURES + PREDICTION_CATEGORICAL_FEATURES]
     y = features["repeat_purchase_60d"]
 
-    x_train, x_test, y_train, y_test = train_test_split(
-        x, y, test_size=0.25, random_state=42, stratify=y
-    )
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=42, stratify=y)
 
     preprocessor = ColumnTransformer(
         transformers=[

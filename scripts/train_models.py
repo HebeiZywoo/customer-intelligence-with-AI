@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from src.customer_ai.features import build_customer_features, summarize_segments
+from src.customer_ai.logging_utils import configure_logging
 from src.customer_ai.modeling import (
     add_segments,
     extract_feature_importance,
@@ -16,6 +17,7 @@ from src.customer_ai.modeling import (
     train_repeat_purchase_model,
 )
 
+logger = configure_logging()
 
 RAW_DIR = ROOT / "data" / "raw"
 PROCESSED_DIR = ROOT / "data" / "processed"
@@ -44,9 +46,9 @@ def main() -> None:
     joblib.dump(segmentation_model, MODEL_DIR / "segmentation_model.joblib")
     joblib.dump(repeat_purchase_model, MODEL_DIR / "repeat_purchase_model.joblib")
 
-    print("Training complete")
-    print(json.dumps(metrics, indent=2))
-    print(f"Saved {len(scored):,} customer rows")
+    logger.info("Training complete")
+    logger.info("Model metrics:\n%s", json.dumps(metrics, indent=2))
+    logger.info("Saved %s customer rows", f"{len(scored):,}")
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 ## 30-Second Version
 
-I built an AI-powered customer intelligence platform for an ecommerce retention use case. The project uses DuckDB SQL for analytical reporting, segments customers with RFM features, compares models for 60-day repeat purchase prediction, explains model drivers, estimates campaign lift and ROI, and exposes the results in a Streamlit dashboard with executive recommendations.
+I built a customer intelligence and campaign ROI platform for an ecommerce retention use case. The project uses DuckDB SQL for analytical reporting, segments customers with RFM features, compares models for 60-day repeat purchase prediction, explains model drivers, estimates campaign lift and ROI, and exposes the results in a Streamlit dashboard with executive recommendations.
 
 ## Problem
 

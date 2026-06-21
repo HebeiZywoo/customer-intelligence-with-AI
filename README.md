@@ -1,6 +1,10 @@
-# AI-Powered Customer Intelligence Platform
+# Customer Intelligence & Campaign ROI Platform
 
-An end-to-end Data Scientist portfolio project that turns ecommerce customer data into retention strategy, campaign ROI estimates, and executive-ready recommendations.
+[![CI](https://github.com/HebeiZywoo/customer-intelligence-with-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/HebeiZywoo/customer-intelligence-with-AI/actions/workflows/ci.yml)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+An end-to-end data science project that turns ecommerce customer data into retention strategy, campaign ROI estimates, and executive-ready recommendations.
 
 ![Executive dashboard](reports/dashboard_executive_final.png)
 
@@ -10,7 +14,7 @@ This project answers a realistic business question:
 
 > Which customers should an ecommerce team target next, and is the campaign worth scaling?
 
-I built a full analytics and machine learning workflow using Python, DuckDB SQL, scikit-learn, and Streamlit. The platform segments customers, predicts 60-day repeat purchase probability, explains model drivers, evaluates a campaign against a holdout group, estimates ROI, and summarizes the recommendation in an executive dashboard.
+I built a full analytics and machine learning workflow using Python, DuckDB SQL, scikit-learn, Streamlit, and the Anthropic Claude API. The platform segments customers, predicts 60-day repeat purchase probability, explains model drivers, evaluates a campaign against a holdout group, estimates ROI, and summarizes the recommendation in an executive dashboard with a grounded Claude-powered analyst assistant.
 
 ## Results
 
@@ -25,9 +29,9 @@ I built a full analytics and machine learning workflow using Python, DuckDB SQL,
 | Projected ROI | 115.7% |
 | Estimated net profit | $2,043 |
 
-## Why This Project Matters
+## Scope
 
-Many portfolio projects stop at model training. This one continues into the parts of data science that hiring teams care about:
+The project covers the full decision workflow, not just model training:
 
 - Framing a business decision.
 - Building time-aware customer features.
@@ -58,7 +62,7 @@ The dashboard is designed around the way a stakeholder would consume the work:
 - Prediction: model comparison, selected model metrics, and feature importance.
 - Experiment: lift, confidence interval, p-value, ROI, and segment-level lift.
 - SQL Insights: DuckDB-powered reporting tables.
-- AI Assistant: grounded answers over project outputs.
+- Analyst Assistant: grounded business Q&A — Claude-powered (Opus 4.8 / Sonnet 4.6 / Haiku 4.5, selectable) when an API key is configured, with a deterministic rule-based fallback otherwise.
 
 ![Experiment dashboard](reports/dashboard_experiment_final.png)
 
@@ -99,12 +103,15 @@ flowchart LR
 │   ├── generate_data.py
 │   ├── run_sql_analysis.py
 │   └── train_models.py
-└── src/
-    └── customer_ai/
-        ├── assistant.py
-        ├── experiments.py
-        ├── features.py
-        └── modeling.py
+├── src/
+│   └── customer_ai/
+│       ├── assistant.py
+│       ├── experiments.py
+│       ├── features.py
+│       └── modeling.py
+├── tests/                  # pytest suite
+├── Makefile
+└── pyproject.toml          # packaging, ruff, and pytest config
 ```
 
 ## Quick Start
@@ -140,6 +147,45 @@ source .venv/bin/activate
 make all
 make app
 ```
+
+## Development & Testing
+
+```bash
+pip install -r requirements-dev.txt
+make check        # ruff lint + format check, then pytest
+```
+
+The library logic in `src/customer_ai/` is covered by a pytest suite that runs
+against a small synthetic dataset for fast feedback. A `slow`-marked test
+regenerates the full 1,800-customer dataset and asserts the headline ROC AUC,
+campaign lift, and ROI quoted above, so the documented numbers stay
+reproducible:
+
+```bash
+pytest            # fast unit + SQL smoke tests
+pytest -m slow    # full-scale headline-metric regression
+```
+
+CI (GitHub Actions) runs lint and the full test suite on Python 3.9, 3.11, and
+3.12 for every push and pull request.
+
+## Analyst Assistant (LLM)
+
+The **Analyst Assistant** tab answers business questions grounded in the
+project's computed metrics. It uses the Anthropic Claude API when a key is
+available and otherwise falls back to a deterministic rule-based responder, so
+the app always runs.
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...   # or add it to .streamlit/secrets.toml
+streamlit run app/streamlit_app.py
+```
+
+Models are selectable in the UI (Claude Opus 4.8 / Sonnet 4.6 / Haiku 4.5). The
+system prompt instructs the model to answer **only** from the supplied context
+(segments, model metrics, campaign lift/ROI), keeping responses tied to the
+numbers the pipeline produced. Tests mock the SDK, so no API key or network call
+is needed to run the suite.
 
 ## Deploy
 

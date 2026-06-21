@@ -22,9 +22,7 @@ def build_customer_features(
     campaign_events["campaign_date"] = pd.to_datetime(campaign_events["campaign_date"])
 
     history = transactions[transactions["order_date"] < cutoff]
-    future = transactions[
-        (transactions["order_date"] >= cutoff) & (transactions["order_date"] < prediction_end)
-    ]
+    future = transactions[(transactions["order_date"] >= cutoff) & (transactions["order_date"] < prediction_end)]
 
     orders = (
         history.groupby("customer_id")
@@ -46,8 +44,7 @@ def build_customer_features(
         .reset_index()
         .sort_values(["customer_id", "revenue"], ascending=[True, False])
         .drop_duplicates("customer_id")
-        .rename(columns={"category": "top_category"})
-        [["customer_id", "top_category"]]
+        .rename(columns={"category": "top_category"})[["customer_id", "top_category"]]
     )
 
     campaign = (
